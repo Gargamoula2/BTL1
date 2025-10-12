@@ -97,11 +97,14 @@ Recuperer le hash :
 A write blocker is a device that prevents writing to a hard drive, but allows someone to read from it.
 
 ---
+
+✅ **FTK Imager** s’utilise pour **créer une image forensique complète et préservée d’un disque ou support** avant toute analyse.  
+✅ **KAPE** s’utilise pour **collecter et analyser rapidement les artefacts clés d’un système Windows** lors d’une réponse à incident ou d’un triage.
 # FTK Imager
 
 ***Ce que peut faire FTK Imager :***
 - **Videz la RAM** et stockez-la dans un fichier `**.mem**`, afin que nous puissions l'exporter vers d'autres outils, par exemple à des fins Volatility d'analyse.
-- **Prendre des images de disque médico-légales** qui peuvent être analysées à l'aide d'outils tels que. Autopsy
+- **Prendre des images de disque** qui peuvent être analysées à l'aide d'outils tels que Autopsy
 - **Exportez des fichiers** directement à partir d'images de disque.
 - **Générez des hachages MD5 et SHA1 pour les fichiers** de preuves.
 - **Fournissez une vue en lecture seule** du contenu d'une image disque, exactement comme l'utilisateur l'aurait vue.
@@ -109,36 +112,29 @@ A write blocker is a device that prevents writing to a hard drive, but allows so
 - 
 FTK Imager est un outil extrêmement puissant qui est utilisé dans le cadre d'enquêtes réelles par les enquêteurs et les équipes de sécurité. Passons rapidement en revue certaines des fonctionnalités :
 
-- **Videz la RAM** et stockez-la dans un fichier `**.mem**`, afin que nous puissions l'exporter vers d'autres outils, par exemple à des fins Volatility d'analyse.
-- **Prendre des images de disque médico-légales** qui peuvent être analysées à l'aide d'outils tels que. Autopsy
-- **Exportez des fichiers** directement à partir d'images de disque.
-- **Générez des hachages MD5 et SHA1 pour les fichiers** de preuves.
-- **Fournissez une vue en lecture seule** du contenu d'une image disque, exactement comme l'utilisateur l'aurait vue.
-- **Et bien plus encore !**
-
 
 **Dump de mémoire**
   
 
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/ba9219ef95d2f4558f265739e660ea05bffef5c5684b88bd82f5cbaf8b1be70b41567e3aa695dbbf2964e3dd7e50.png)
 
-La première chose que nous voulons vous montrer est de prendre un instantané de la RAM du système FTK Imager sur lequel nous fonctionnons. Pour ce faire, nous allons dans **Fichier > Capturer la mémoire**.
+La première chose que l'on peut faire est de prendre une copie instantanée de la RAM du système. Pour ce faire, nous allons dans **Fichier > Capturer la mémoire**.
 
   
 
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/8d7d686cd8b967effdca6b989bc75a029820918c2a0846a3ac2777bdd3332ccd26443e3cab36c3ddf77cb7ec3c06.png)
 
-Nous sommes ensuite invités à saisir l'emplacement dans lequel le fichier doit être enregistré. Nous avons donc créé un nouveau répertoire sur notre bureau nommé « Memory Dump ». Nous pouvons modifier le nom du fichier si nous le voulons, mais dans cet exemple, nous allons le laisser sous la forme « memdump.mem ». Comme indiqué précédemment dans ce domaine, pagefile peut contenir des preuves supplémentaires, mais nous ne les inclurons pas dans cette procédure pas à pas. En bas de la page, vous pouvez créer un fichier AD1, le type de fichier de signature de The Forensic Toolkit (TFK), un autre outil développé par AccessData. Nous laisserons ces deux options décochées et cliquerons sur « Capturer la mémoire ». FTK Imager va maintenant se mettre au travail en vidant tout ce qui se trouve dans la RAM et en le stockant dans un fichier .mem.
+Nous sommes ensuite invités à saisir l'emplacement dans lequel le fichier doit être enregistré. Nous avons donc créé un nouveau répertoire sur notre bureau nommé « Memory Dump ». En bas de la page, vous pouvez créer un fichier AD1, le type de fichier de signature de The Forensic Toolkit (TFK), un autre outil développé par AccessData. Nous laisserons ces deux options décochées et cliquerons sur « Capturer la mémoire ». FTK Imager va maintenant se mettre au travail en vidant tout ce qui se trouve dans la RAM et en le stockant dans un fichier .mem.
 
   
 
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/4f6d3ad23b7fb17ba2a9024f5b0d4a57ecc3b27a1e69ca48710a182ff07be2b34d2657c7d9943f8aa2a159c6475f.png)
 
-Une fois l'opération terminée, nous aurons désormais un fichier mémoire dans notre destination désignée. Nous pouvons utiliser des outils tels que Volatility l'analyse de ce vidage, mais nous aborderons ce point dans une prochaine leçon.
+Une fois l'opération terminée, nous aurons désormais un fichier mémoire du systeme. Nous pouvons utiliser des outils tels que Volatility pour analyser le dump mémoire.
 
 **Imagerie du disque dur**
 
-Dans le monde réel, un disque dur prélevé sur une scène de crime sera connecté à un poste de travail médico-légal (un PC doté d'un matériel haut de gamme permettant d'accélérer les analyses et le transfert de données) auquel un disque dur propre sera connecté. Un bloqueur d'écriture sera utilisé entre le poste de travail et le disque dur suspect, afin d'empêcher le poste de travail de modifier accidentellement quoi que ce soit sur le disque dur, ce qui pourrait entraîner le rejet de preuves pour falsification. L'analyste judiciaire commencera ensuite à copier bit par bit le disque dur du suspect sur le disque vierge. Cela peut prendre beaucoup de temps, car il s'agit d'une copie exacte de chaque donnée, de sorte que rien n'est oublié.
+Dans le monde réel, un disque dur prélevé sur une scène de crime sera connecté à un poste de travail auquel un disque dur propre sera connecté. Un bloqueur d'écriture sera utilisé entre le poste de travail et le disque dur suspect, afin d'empêcher le poste de travail de modifier accidentellement quoi que ce soit sur le disque dur, ce qui pourrait entraîner le rejet de preuves pour falsification. L'analyste judiciaire commencera ensuite à copier bit par bit le disque dur du suspect sur le disque vierge. Cela peut prendre beaucoup de temps, car il s'agit d'une copie exacte de chaque donnée, de sorte que rien n'est oublié.
 
 Nous pouvons créer un fichier image système (`**.img**`) à l'aide FTK Imager duquel nous pouvons ensuite l'analyser pour rechercher des preuves numériques. Pour cet exemple, nous allons prendre une image disque d'une clé USB de 15 Go que nous avons. À des fins de démonstration, nous avons placé des fichiers aléatoires sur la clé USB.
 
@@ -162,7 +158,9 @@ Comme nous avons sélectionné Physical Drive, nous FTK Imager allons maintena
 
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/96c5e38e23f3b15a261583cfc57f4492919b4dd30f36ae29dc1c8da46c77e90d7d204d55527c79f05e1e5924d13b.png)
 
-Ensuite, nous serons invités à fournir des informations sur les éléments de preuve. C'est une bonne idée de suivre les principes de la chaîne de traçabilité et de l'ACPO. Toutefois, comme nous le faisons à titre d'exemple et qu'il ne s'agit pas d'une enquête d'application de la loi ou de réponse à un incident, nous pouvons laisser cette information vide et cliquer sur **Suivant**.
+On peut ensuite preciser le type d'image que l'on veut. En l'occurence, le logiciel "EnCase" prefere les images de type E01
+
+![[Pasted image 20251011162150.png]]
 
   
 
@@ -203,7 +201,7 @@ Vous voulez vous entraîner avec FTK Imager  ? Vous pouvez essayer de créer 
 ---
 # KAPE
 
-En consultant le KAPE dossier, vous trouverez deux fichiers exécutables, kape.exe et gkape.exe. Nous allons utiliser gkape.exe, qui est la version graphique de cet outil. Exécutons-le. Nous pouvons diviser l'interface en trois sections :
+En consultant le dossier KAPE, vous trouverez deux fichiers exécutables, kape.exe et gkape.exe. Nous allons utiliser gkape.exe, qui est la version graphique de cet outil. Exécutons-le. Nous pouvons diviser l'interface en trois sections :
 
 - **En haut à gauche —** Les cibles nous permettent de choisir exactement les informations que nous voulons récupérer du système cible, afin de pouvoir les obtenir le plus rapidement possible. Cela peut aller de la mémoire système aux données du navigateur Web.
 - **En haut à droite :** les modules fournissent des fonctionnalités supplémentaires et permettent d'effectuer des opérations avec les données récupérées, telles que l'analyse des informations collectées à partir du système cible. Elles s'appuient sur les options Target et nous permettent d'affiner les informations que nous voulons collecter.
@@ -212,17 +210,16 @@ En consultant le KAPE dossier, vous trouverez deux fichiers exécutables, kape
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/8c3e09e8343034128158ebed1654453d17c06e49232cd7d98423acd6e5332fd9e2972bbd45b06ecc051b96c181e6.png)
 
-Lorsque nous cochons la case pour activer les cibles en haut à gauche, nous devons d'abord fournir la source cible. Il s'agit généralement d'une image disque, mais pour cette procédure pas à pas, nous allons utiliser le lecteur C de notre système hôte.
+En cliquant sur "Use Target Options" On peut ensuite préciser la source, donc dans quel répertoire on veut récupérer les infos (Ici on veut récupérer des infos dans tout le disque C), target destination c'est le dossier dans lequel ira tout ce que le logiciel a trouve 
 
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/becab6a7e2586f4d056ec4a5027ea0341d2c99bd84d27ae9affb201287835584703e75e94a3f519c6a636a37fc4d.png)
 
-Ensuite, nous devons définir un emplacement où les fichiers collectés KAPE seront enregistrés. Nous l'avons configuré dans un nouveau dossier dans nos Documents appelé KAPE Output.
-
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/6df632c3be344227ebc38a11f14baea985d52bf8859dae448e388cb7e2fcc9b5e4c1ea291973e3c735426266df53.png)
 
-Ensuite, nous pouvons sélectionner nos cibles. Pour le premier exemple, collectons des informations à partir des navigateurs Web les plus populaires : Chrome, Edge et Firefox. Nous pouvons faire défiler la zone Cibles vers le bas et les trouver.  
+Ensuite, nous pouvons sélectionner nos cibles. Pour le premier exemple, collectons des informations à partir des navigateurs Web les plus populaires : Chrome, Edge et Firefox. Nous pouvons faire défiler la zone Cibles vers le bas et les trouver.  Ou utiliser la barre de recherche (En général il faut cliquer dans la zone pour la faire apparaitre)
+![[Pasted image 20251011164145.png]]
 
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/86fd20b0d23a3dce3f3740db925b46db879000e3e155198bf010166e2f791f873c58af3a3065856c0f800e79b90b.png)
 
@@ -240,17 +237,17 @@ KAPE va ouvrir un terminal et commencer à récupérer les copies des fichiers 
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/7a4128714ec8bfe04c12aaab9fbc8be34c5f94c353514cb2626cbf7c0e67e85d9e3df9fc4e930b25700e30eccf7f.gif)
 
-Voyons ce que nous KAPE avons trouvé en accédant au répertoire que nous avons défini comme destination cible plus tôt. Nous pouvons voir qu'il existe un certain nombre de journaux qui nous indiquent exactement ce qui KAPE s'est passé lors de l'acquisition. Nous avons également un dossier nommé « C » d'après le lecteur C de notre système hôte.
+Voyons ce que KAPE a trouvé en accédant au répertoire que nous avons défini comme destination cible plus tôt. Nous pouvons voir qu'il existe un certain nombre de journaux qui nous indiquent exactement ce qui s'est passé lors de l'acquisition. Nous avons également un dossier nommé « C » d'après le lecteur C de notre système hôte.
 
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/7cbce1a9606ed0dfd1064e9043c31cbf45b6ab00db65b3608041f9361a02fb764b0bd82ca51142d9ef20bc510258.png)
 
-Sur le chemin de fichier suivant, nous pouvons voir que vous avez KAPE trouvé des fichiers intéressants concernant l'activité menée à l'aide du navigateur Firefox sur ce système, y compris les cookies (qui peuvent nous indiquer les sites visités par l'utilisateur) et l'historique des formulaires qui peut inclure des informations personnelles telles que les adresses, les noms, la date de naissance, etc.
+Nous pouvons voir que KAPE a trouvé des fichiers intéressants concernant l'activité menée à l'aide du navigateur Firefox sur ce système, y compris les cookies (qui peuvent nous indiquer les sites visités par l'utilisateur) et l'historique des formulaires qui peut inclure des informations personnelles telles que les adresses, les noms, la date de naissance, etc.
 
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/e65860cf1997552f9ef6def5015e8808e7aa49dc5fa3b28e59b59308ab8e1f8ec08c6d532fae2f35234b73aa5f64.png)
 
-Dans la capture d'écran ci-dessous, nous pouvons voir qu' KAPE elle a également récupéré des informations très utiles concernant Google Chrome.
+Dans la capture d'écran ci-dessous, nous pouvons voir que KAPE a également récupéré des informations très utiles concernant Google Chrome.
 
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/ba971f8b0c24834667dbeebef6a028b99c11f75f63cd418d1353bd0e1e1e5dc1e7a790639062701eba014ad81b10.png)
@@ -260,5 +257,369 @@ Enfin, nous avons certains fichiers provenant d'Internet Explorer/Edge tels que 
   
 ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/f984921f4546fedebab2395b78cdecdd80954bb7a563130f5a3061c30d22517db512ed960d9a2923f350f9f085ec.png)
 
+**KAPE** peut être utilisé pour récupérer rapidement des tonnes d'informations, telles que les journaux d'événements Windows, les journaux antivirus, les métadonnées du système de fichiers, les fichiers journaux, les fichiers supprimés, les e-mails et bien plus encore
+
+==**Préférer gKAPE qui est la version graphique de KAPE**==
+
 ---
 
+Récupérer le PID d'un process sur windows : `Get-Process | findstr -I calc`
+"calc" étant le process que l'on recherche, calculatrice en l'occurrence
+
+Créer un memory dump du process : `.\procdump.exe -ma PID`
+
+Mettre le PID récupéré par Get-Process
+
+Les fichiers LNK se trouvent à l'adresse suivante : **`C:\Users \ $USER$ \ AppData \ Roaming \ Microsoft \ Windows \ Recent`**
+
+Pour afficher ces fichiers dans un format lisible par l'homme, nous pouvons utiliser **`Windows File Analyzer`**
+
+Les fichiers Prefetch peuvent nous fournir des informations extrêmement utiles sur les programmes, notamment le nom de l'application, le chemin d'accès au fichier exécutable, la date de la dernière exécution du programme et la date de création/installation du programme.
+
+**`Les fichiers Prefetch se trouvent à l'adresse suivante : C:\Windows\Prefetch`**
+
+.\PECmd.exe -f FILE.pf                 (NE PAS OUBLIER LE .\)
+
+FILE étant le fichier qu'on veut analyser et qui a été récupéré dans la liste des fichiers Preftech
+
+En haut de la sortie, nous pouvons voir combien de fois ce fichier a été exécuté, l'heure de création, l'heure de modification et la date du dernier accès. Nous avons également l'heure de la dernière exécution et d'autres fois où cette application a été exécutée. Toutes les autres lignes de cette sortie sont des fichiers liés à l'application, indiquant leurs chemins de fichiers complets.
+
+Les fichiers de la liste de raccourcis se trouvent à l'adresse suivante : 
+`C:\Users \ % USERNAME% \ AppData \ Roaming \ Microsoft \ Windows \ Recent \ AutomaticDestinations   
+`C:\Users \ %USERNAME% \` `AppData \ Roaming \ Microsoft \ Windows \ Recent \ CustomDestinations`
+
+Ces fichiers contiennent des informations sur les applications qui sont épinglées à la barre des tâches, telles que le chemin du fichier, les horodatages et les identificateurs d'applications (AppID).
+
+Pour analyser ces fichiers, nous pouvons utiliser des outils tels que JumpList Explorer
+
+
+
+`.\PECmd.exe -d "C:\Users\BTLOTest\Desktop\Windows Investigation One\Prefetch" -k plaguerat.ps1`
+
+-d Pour préciser que c'est pas un fichier précis qu'il va analyser mais un dossier repli de fichier en .pf
+-k Pour mettre en surbrillance rouge toutes les chaines de caractères qui contiennent le texte en question
+
+Chercher les lignes rouges qui contiennent "plaguerat.ps1" et remonter pour voir quel fichier a lance le processus 
+En remontant la liste on va trouver dans le paragraphe concerne : "Executable name: WINLOGON.EXE"
+C'est donc le logiciel WINLOGON.EXE qui a lance le script plaguerat.ps1
+
+**Tous les fichiers téléchargés dans BHV sont préfixés par « file :///»**
+
+---
+
+Exemple d'analyse sur windows :
+
+**Question 1 - Quels navigateurs Web ont été utilisés par l'employé, classés par ordre alphabétique ? (Utilisez des noms de navigateur simplifiés)**
+
+Tout d'abord, nous allons ouvrir Browser History Viewer (BHV) dans le dossier Windows Investigation Two sur le bureau. Une fois qu'il est chargé, nous allons accéder à Fichier > Historique des chargements.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/5a24e8413213154e2d55474455cdaee04eaa18dc1ffbb2bb37eed78f22740c986503faabaeba2196adcd8aef1f86.PNG)
+
+Lorsque nous sommes invités à charger la capture de l'historique, nous cliquons sur le bouton «... » et nous trouvons le dossier Capture.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/30b4e9a667391b8e7214aa0a8ba7ac4b47d0ed05fb7848b9cbb5c19d2dfec75d46b38b4095eb05ff77bcc36c3bd5.PNG)
+
+Une fois que le BHV aura importé les données, nous pourrons commencer à répondre aux questions !
+
+Sur le premier écran, nous pouvons voir que la colonne à l'extrême droite s'intitule « Navigateur Web (profil) ». Cela nous permet d'identifier les navigateurs Web utilisés sur le système. Il suffit de parcourir la liste et de prendre note des noms des navigateurs. Il est très important de noter qu'il existe 4 pages, qui peuvent être consultées à l'aide des flèches sur le côté gauche de BHV. Comme la question demande des noms simplifiés, au lieu de « Edge Legacy », nous saisirons « Edge ». Il nous est également demandé de les fournir par ordre alphabétique. Nous allons donc nous assurer de les saisir correctement.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/32310ba5b570b3e527c09b89991bd4656e6530b926f48efb35fd052deb079c212dc25ed72e3e8a5763b2b423ad06.PNG)
+
+---
+
+**Question 2 - L'entreprise a adopté une politique interdisant aux employés de consulter les réseaux sociaux sur les appareils de l'entreprise. Quels sites l'employé a-t-il visités, classés par ordre alphabétique ?**
+
+Pour répondre à cette question, nous devons nous concentrer sur la colonne « URL », où nous pouvons voir exactement quelles ressources Web ont été visitées par l'utilisateur. Il s'agit de les parcourir tous pour identifier les noms des sites Web de médias sociaux.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/d1232cea6f1bb786622e46f29a0152fedf2a8c176c9cc185436ad2a54be3a920904bc64cf51f97c8ae59a8ae4b92.PNG)
+
+Si vous ne savez pas si une plateforme est considérée comme un réseau social ou non, une recherche rapide sur Google peut vous aider à comprendre. À titre d'exemple :
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/1aa5fe99295a8878f2deca07b964ccf6db7a40c4301404bdf052628ef60cca62433d965f2d62b506c162d3c2a8be.PNG)
+
+Pour vous aider à répondre à cette question, il existe 5 sites que nous considérons comme des réseaux sociaux. Assurez-vous de les classer par ordre alphabétique ! Nous acceptons plusieurs variantes pour cette réponse.
+
+---
+
+**Question 3 - En regardant les images mises en cache le 19/06/2020 à 12:12:10 (UTC) avec le nom de fichier « everything-in-one-place-scenario-base [1] .png », quel est l'objet du troisième e-mail ?**
+
+Pour cette question, une date nous est fournie afin de nous aider à identifier le dossier qui nous intéresse. Nous avons deux méthodes pour trouver cette date, qui est enregistrée dans la colonne « Dernière récupération » de l'onglet Images mises en cache de BHV.
+
+- Option 1 : Cliquez sur l'en-tête de Last Fetched pour modifier les résultats afin qu'ils s'affichent par ordre croissant ou décroissant dans le temps. Si les horodatages sont en ordre, il nous sera plus facile de trouver l'horodatage correct.
+- Option 2 - Utilisez la section « Filtrer par date » dans le panneau de droite. Pour ce laboratoire, tous les résultats concernent le même jour, mais dans un scénario réel, il est fort probable qu'il s'agisse de jours ou de semaines de données. Cette fonctionnalité serait donc utile pour examiner facilement des jours d'activité spécifiques.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/9e13c17213d4b1643f104849d4b84914cd35ceda3e8c9c8dde0a6cd39d12100cbe9f301fa2d873361951e1b523df.PNG)
+
+À l'aide de la colonne Last Fetched, nous trouvons le bon moment et le bon fichier (en fonction de la colonne Nom de fichier).
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/d5b1693f47819cb23ccff09c4511acb74479295bc3efb4e2a9cc1276806201db6c95bbac9406e73b55c6d82110a5.PNG)
+
+En regardant le panneau inférieur de BHV, si nous sélectionnons un fichier dans le tableau, l'image associée sera mise en évidence. Nous pouvons double-cliquer sur l'image pour l'afficher en taille réelle dans une nouvelle fenêtre. Ici, nous pouvons obtenir la réponse à cette question.
+
+---
+
+**Question 4 - Quelle est l'URL complète du clip vidéo que l'employé écoute sur Youtube ?**
+
+Pour cette question, nous allons retourner à l'onglet Historique du site Web en haut à gauche. Au lieu de parcourir toutes les URL pour trouver celles de YouTube, nous pouvons utiliser le champ de recherche « Filtrer par mot clé » en haut à droite. Si nous saisissons YouTube, nous ne verrons que les URL ou les titres qui incluent la chaîne « youtube ».
+
+Après avoir cherché cela, nous pouvons rapidement trouver la réponse à la question.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/d2b7999aa32870c459bb33f7c234151530801315bd8f5f1e5acb0965795b70a10d9c6fb64cbe83bf0c06b40d0ea3.PNG)
+
+---
+
+**Question 5 - Quel est le nom du fichier malveillant téléchargé par l'employé ?**
+
+Pour aborder cette question, nous avons trois méthodes principales :
+
+- Option 1 : passez en revue manuellement toutes les URL jusqu'à ce que des URL se terminant par un nom de fichier apparaissent, en mettant en évidence une URL de téléchargement (telle que securityblue.team/downloads/file.exe). Cette méthode peut prendre beaucoup de temps en fonction du volume d'enregistrements, mais vous pouvez également identifier d'autres activités intéressantes au cours de la recherche.
+- Deuxième option - Nous pourrions utiliser le champ de recherche « Filtrer par mot clé » pour rechercher des extensions de fichiers, en recherchant des expressions telles que « .zip », « .exe », etc. Ces recherches réduiront le bruit généré par les enregistrements qui ne contiennent pas de nom de fichier, mais nous devrons parcourir chaque type de fichier jusqu'à ce que nous trouvions ce que nous cherchons. Si nous oublions de rechercher un type de fichier, il se peut que nous manquions l'activité correspondante.
+- Option 3 - Tous les fichiers téléchargés dans BHV sont préfixés par « file :///». Nous pouvons l'utiliser pour voir le nom du fichier et l'endroit où il a été enregistré sur le système. C'est le moyen le plus rapide, et une fois que nous avons récupéré le nom du fichier, nous pouvons l'utiliser dans le champ de recherche pour trouver d'où il a été téléchargé !
+
+En utilisant la troisième option et en filtrant d'abord par date de visite la plus récente, nous trouvons un fichier ZIP avec un nom inhabituel. Cela vaut vraiment la peine d'être étudié plus avant !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/b1ea4ba61281d08b0e4e455cc575d2f7731dc73b35b7e74365927296923bbaacfda17448a99bf782b5d7ff1fb9d3.PNG)
+
+---
+
+**Question 6 - Sur la base de l'historique de navigation de l'employé au moment du téléchargement du fichier, quelle est la source probable de l'URL malveillante ?**
+
+Maintenant que nous avons trouvé le fichier suspect, nous pouvons commencer à regarder de plus près. Bien que l'URL qui héberge le fichier nous intéresse, en regardant plus loin dans le temps, nous pouvons comprendre exactement comment ils y sont arrivés. En recherchant le nom de fichier, nous pouvons trouver l'URL d'hébergement.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/e8d60e60b558ee781435cd69abdc761b766e34241c56e2e62f4d674f02ebd9bb9575833fa5fa0f35069faf22b2f7.PNG)
+
+Nous savons donc que l'utilisateur a visité cette URL et a téléchargé le fichier sur son bureau à 12:14:09. Effacons tous nos filtres en cliquant sur « Réinitialiser » sur le côté droit. Nous utiliserons ensuite la colonne Date de visite pour trouver l'horodatage 19/06/2022 12:14:09, ce qui nous permettra de voir les enregistrements survenus avant cet événement de téléchargement.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/97c0fa62eb6529af895244109fa1e9d5ae4eb0691799e6541f75a3fb67e57bbba98467989202fd2e6f43a22e3fd3.PNG)
+
+Sur la base des informations ci-dessus, nous pouvons en déduire que le trajet suivant a été effectué par l'utilisateur :
+
+- 1) L'utilisateur accède à la page de connexion d'Outlook.
+- 2) L'utilisateur se connecte avec succès et accède à sa boîte de réception.
+- 3) L'utilisateur télécharge le fichier zip, probablement à partir d'un e-mail dans sa boîte de réception. Le fichier est téléchargé sur leur bureau.
+
+Il convient de mentionner que nous ne pouvons pas être sûrs à 100 % que cette activité représente une URL dans un e-mail, sans avoir réellement accès à leur boîte de réception pour confirmer cette découverte. Il est tout à fait possible que l'utilisateur se connecte à son compte de messagerie puis saisisse manuellement l'URL dans un navigateur pour le visiter. Toutefois, sur la base des informations dont nous disposons et des horodatages très rapprochés, l'explication la plus probable est un lien contenu dans un e-mail.
+
+Par conséquent, la réponse à cette question sera le domaine indiqué dans la section 2 surlignée.
+
+---
+
+**Question 7 - Quel est le nom de domaine à partir duquel le logiciel malveillant a été téléchargé ?**
+
+Nous avons déjà trouvé la réponse à cette question à la question 6 ci-dessus (illustrée dans la section 3 surlignée).
+
+---
+
+**Question 8 - Recherchez l'URL du logiciel malveillant sur https://urlhaus.abuse.ch (en dehors du laboratoire) pour savoir quel type de logiciel malveillant a été téléchargé**
+
+En visitant URLHaus et en recherchant l'URL de téléchargement complète, nous pouvons constater, d'après les balises, qu'il s'agit du malware Quakbot !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/5669244a693ee752f488dd8af2b7376c98057d34b499e0b7e73ee5e973664df5d48d5fce9a07740324462010f620.PNG)
+
+Pour en savoir plus sur cette URL, vous pouvez cliquer sur l'URL en lien hypertexte dans les résultats de recherche (ne vous inquiétez pas, cela vous amène simplement à une page plus détaillée).
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/9a79491a156c9f9d4414739d2aab6ccc5bdae95494050a5c3111ee95d91547500b40f9239fc64406cbcc4a9fc1d7.PNG)
+
+---
+
+Utiliser RBCmd.exe pour analyser les fichier supprimés de la corbeille.
+
+- ID d'événement 4624 (connexion réussie)
+- ID 4672 (Ouverture de session spéciale)
+- ID 4625 (échec de connexion)
+- et ID 4634 (Logoff)
+Les journaux d'événements Windows sont stockés à l'emplacement suivant : `C:\Windows\System32\winevt\Logs`
+
+**Analyse des artefacts, 4624 Connexion réussie**
+
+Tout d'abord, nous devons comprendre quelles informations nous sont fournies dans ces journaux. Commençons par 4624, qui indique les connexions réussies au système.
+
+L'une des propriétés les plus importantes à noter est le type de connexion, où il existe 8 valeurs possibles :
+
+2 — Interactif (connexion interactive, c'est-à-dire connexion physique à l'appareil)  
+3 — Réseau (accès au système via le réseau)  
+4 — Batch (démarré en tant que traitement par lots automatique)  
+5 — Service (un service Windows démarré par le contrôleur de service)  
+6 — Proxy (connexion par proxy ; non utilisé dans Windows NT ou Windows 2000)  
+7 — Déverrouillage (déverrouillage du poste de travail - pensez à une connexion interactive, mais déverrouillage pour reprendre une session précédente)  
+8 — NetworkClearText (réseau connexion (avec des informations d'identification en texte clair) 9 — NewCredentials (utilisé par RunAs lorsque  
+(l'option /netonly est utilisée)
+
+**Analyse des artefacts, 4672 Ouverture de session spéciale réussie**
+
+Les événements d'ouverture de session spéciaux se produisent lorsqu'un utilisateur disposant de privilèges administratifs se connecte au système
+
+**Analyse des artefacts, échec de connexion 4625**
+
+Les événements d'échec de connexion sont très utiles pour nous, en particulier lorsqu'il s'agit de répondre à un incident. Cela est dû au fait que ces journaux contiennent des codes d'erreur qui nous aident à comprendre exactement pourquoi la tentative de connexion a échoué. Les différents codes d'erreur sont les suivants :
+
+|CODE D'ERREUR DU JOURNAL NETLOGON|DESCRIPTION|
+|---|---|
+|0xC0000064|L'utilisateur spécifié n'existe pas|
+|0xC000006A|La valeur fournie comme mot de passe actuel n'est pas correcte|
+|0xC000006C|Politique de mot de passe non respectée|
+|0xC000006D|La tentative de connexion n'est pas valide en raison d'un nom d'utilisateur incorrect|
+|0xC000006E|La restriction du compte utilisateur a empêché la connexion|
+|0xC000006F|Le compte utilisateur est soumis à des restrictions de temps et ne peut pas être connecté pour le moment|
+|0xC0000070|L'utilisateur est soumis à des restrictions et ne peut pas se connecter à partir du poste de travail source|
+|0xC0000071|Le mot de passe du compte utilisateur a expiré|
+|0xC0000072|Le compte utilisateur est actuellement désactivé|
+|0xC000009A|Ressources système insuffisantes|
+|0xC0000193|Le compte de l'utilisateur a expiré|
+|0xC0000225|L'utilisateur doit modifier son mot de passe avant de se connecter pour la première fois|
+|0xC0000234|Le compte utilisateur a été automatiquement verrouillé|
+
+Un volume élevé de tentatives de connexion à un compte désactivé (_0xc00000072_) ? Suspect.  
+Un grand nombre de tentatives de connexion à un compte qui n'existe pas (nom d'utilisateur incorrect, _0xC0000006D) ?_ Suspect. Bien que la plupart des SoC utilisent ce journal et les codes d'erreur qu'il contient pour générer des alertes, il est certainement utile pour nous en tant qu'enquêteurs judiciaires.
+
+Sur Windows 10, nous pouvons trouver le répertoire de la corbeille pour tous les utilisateurs situé à l'adresse `C:\$Recycle.Bin`
+Nous devons utiliser `dir /a` car les dossiers sont masqués par défaut et l'indicateur /a les affichera.
+
+Nous pouvons voir que certains sous-dossiers utilisent des identifiants de sécurité de compte comme nom (SID). Il est facile de savoir à quel nom d'utilisateur le SID se rapporte à l'aide de Windows Management Instrumentation Command (WMIC) : `wmic useraccount get name, SID`
+
+cd C:\$Recycle.Bin
+dir /a
+
+**`C:\Users\BTLOTest\Desktop\Recycle -Bin-Analysis\Tools\RBCmd.exe -d. --csv C:\Users\BTLOTest\Desktop`**
+(C'est tout sur la meme ligne)
+
+C:\$Recycle.Bin>C:\Users\BTLOTest\Desktop\Recycle-Bin-Analysis\Tools\RBCmd.exe -d. --csv "C:\Users\BTLOTest\Desktop
+
+Utiliser CSVQuickViewer pour mieux visualiser la réponse
+
+C:\$Recycle.Bin \ _S-1-5-21-4001622725-2027095096-2530479061-1008_ \ $IK1SRL4
+La partie en italique c'est le PID du user
+
+Exemple :
+
+**Question 1) Quelle est la valeur FileName du plus gros fichier supprimé détecté ?**
+
+Tout d'abord, nous allons taper CMD dans le menu Windows et cliquer dessus avec le bouton droit de la souris pour l'exécuter en tant qu'administrateur. Nous allons ensuite placer le CD dans le répertoire de la corbeille.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/5c4d97bdb26665b60ad43698adbf9a16fbffd0832f60136bebc14195f3080ec40974e3efc73c167d37f8f3241639.png)
+
+Ensuite, nous allons exécuter RbCmd à l'aide de la commande suivante :
+
+`**C:\Users\BTLOTest\Desktop\Recycle -Bin-Analysis \ Tools \ RBCmd.exe -d. --csv C:\Users\BTLOTest\Desktop \**`
+
+==NE PAS OUBLIER LE . (POINT) après le -d==
+
+Cela exécutera RBCmd.exe dans le répertoire de la corbeille et générera un fichier CSV dans un dossier de sortie sur notre bureau appelé « Output ».
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/b884d36a88540b8d1cfac6d9dd859fad741b56f82d806594c3c1bb93a7f41ace74d8deaf70fb20824491483c1130.png)
+
+Nous allons ensuite ouvrir l'application CSVQuickViewer à partir du dossier du bureau.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/d3571a279386e9477917196543fbc05d23dcae08051606d89bb0090fd9c128fd27be46b2fa908fb73b3bd6cdb4e0.png)
+
+Si nous recevons l'application Search for dans le Store ? popup, nous pouvons simplement cliquer sur Oui pour lancer le programme de toute façon.
+
+Cliquez sur Ouvrir le fichier dans le coin supérieur gauche et sélectionnez le fichier CSV dans le dossier de sortie. Nous pouvons maintenant commencer à trier les résultats !
+
+En cliquant deux fois sur l'en-tête de la colonne FileSize, nous pouvons classer les résultats du plus haut au plus bas, en nous montrant le plus gros fichier supprimé.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/2cceddc2c3f46b4e45c5ad80bcea571950142d3b477c09945d5532dab194f83298bd32bee9da62a642782be62824.png)
+
+---
+
+**Question 2) Quel compte utilisateur contenait le plus grand nombre de fichiers supprimés dans la corbeille, et quel en était le nombre total ?**
+
+Pour obtenir la réponse à cette question, nous devons compter le nombre de fois qu'un compte utilisateur est présent dans la colonne FileName (car cela est plus facile que de compter les occurrences du SID). Si vous êtes toujours en train de trier FileSize du plus haut au plus bas, cliquez sur l'en-tête FileName car cela filtrera cette colonne et regroupera les résultats en fonction de la chaîne du chemin du fichier, ce qui facilitera la lecture des utilisateurs en les regroupant.
+
+Simon.Leeves a le plus de fichiers supprimés avec 8.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/1ac8466a5f49f158693fc425696304fe7965b2eb7ac7065beb3f0d3cb4a5d82173950aaaf66cb4cd53460f459897.png)
+
+---
+
+**Question 3) À quelle heure le fichier « 2023 Rebrand Design Brief.pdf » a-t-il été supprimé ?**
+
+En recherchant ce nom de fichier dans la colonne FileName, nous pouvons ensuite identifier la valeur d'horodatage DeletedOn.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/6c988cdff4ec6be7a09c320d4dd7a07a17d75c9cd7c7dc71fb08921cf62183ccfe547367083d51c13782482b2438.png)
+
+---
+
+**Question 4) Quel compte utilisateur a supprimé un fichier d'une taille de 542812 octets ?**
+
+Nous pouvons rechercher cette valeur dans la colonne FileSize, puis utiliser la colonne FileName pour identifier le compte utilisateur.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/ce463f3e87b2fc797e224c6522de82f031a8d36b1695ca63882c22eee2fa54c13f61c52968a80015dd98b52b5ca1.png)
+
+---
+
+**Question 5) Simon Leeves a été accusé d'avoir téléchargé des fichiers confidentiels, de les avoir supprimés de la base de données, puis d'avoir supprimé ses propres copies. Quels sont les noms des fichiers qui soutiennent cet argument ?**
+
+Deux fichiers soutiennent cette théorie, en fonction de leur emplacement au moment de leur suppression (le dossier /Downloads/ pour ce compte utilisateur) et du contenu attendu des fichiers en fonction des noms de fichiers.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/1728658239d8bcf1fcce600cf61ae895ac6a9aec0c0182192fcad4d7581e807f181b02f367715e611a0d65597d48.png)
+
+---
+
+**Question 6) Combien de fichiers supprimés ont été identifiés au total ?**
+
+En comptant toutes les lignes de résultats dans CSVQuickViewer, on obtient 24 résultats.
+
+---
+
+**Question 7) Quels sont les 4 derniers chiffres de la valeur SID de Rick Ranchez ? (Format : XXXX**)
+
+Sur la base d'une ligne de résultats contenant Rick.Sanchez dans la colonne FileName, nous pouvons supposer que son SID se termine par 1013. N'oubliez pas que nous pouvons vérifier cela en utilisant wmic si nous le voulons !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/4273063665106c353caaa32e2727b4c263e3134fbf81559eee0bce382b6e703a9d52c1a40e14da4aaf17bca33307.png)
+
+
+**==FAIRE TOUT CA DANS UN TERMINAL EN MODE ADMINISTRATEUR==**
+
+Cela exécutera RBCmd.exe dans le répertoire de la corbeille et générera un fichier CSV dans un dossier de sortie sur notre bureau appelé « Output ».
+
+Cette commande exécute l'exécutable RbCmd, lui demandant de saisir le répertoire actuel (-d.) et d'exporter un CSV vers un dossier sur le bureau de notre utilisateur.
+
+À l'aide de CSVQuickViewer depuis le bureau, nous pouvons ouvrir le fichier CSV généré et examiner son contenu. Grâce à ce format de fichier, nous pouvons facilement voir quels fichiers ont été supprimés par l'utilisateur et à quel moment !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/2417026fd9e1d500b2ea072c3850c2e8bbe11b49ca81ce2cb57b0f6a2acc55979aa143384fa9486f66f686464ad6.png)
+
+Si, pour une raison ou une autre, nous voulions analyser la corbeille de tous les comptes locaux d'un système, nous pourrions exécuter RbCmd à partir du répertoire C : $Recycle.Bin et l'argument use (-d.) pour pointer l'outil vers ce répertoire. Il parcourra ensuite de manière récursive chacun des sous-dossiers SID à la recherche de fichiers $I à analyser.
+
+---
+
+**/var/lib**
+Sur les systèmes basés sur Debian, nous pouvons trouver un fichier très utile à l'emplacement suivant : /var/lib/dpkg/status. Ce fichier contient une liste de tous les packages logiciels installés en fonction du user
+
+On peut filtrer la sortie :
+
+`cat status | Package grep > packages.txt`
+
+- cat status va lire le fichier.
+- grep Package recherchera toutes les lignes contenant « Package »
+- > packages.txt affichera les résultats dans un fichier texte appelé packages.txt
+
+**/var/log
+
+1. **/var/log/auth.log** : contient les informations d'authentification du système, y compris les connexions des utilisateurs.  
+    ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/d334a78e3f10942aa70f8c93855db0b9f8ae0bb97834cbec73c33a9b3d9bc74336f8057286fb4f8d49e50fc4b8c8.png)
+2. **/var/log/dpkg.log** — Contient des informations enregistrées lorsqu'un package est installé ou supprimé à l'aide de la commande « dpkg ». Cette commande est similaire à la commande packages de la section var/lib ci-dessus.  
+    ![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/278766abf71b4e40c0dd1881bcdf02afe7d4284c5b4576201c8709cbe67cff785429ddeb14d6ca120111aca067d5.png)
+3. **/var/log/btmp** — Ce fichier contient des informations sur les tentatives de connexion infructueuses.
+4. **/var/log/cron** — Chaque fois que le démon cron lance une tâche cron, il enregistre les informations relatives à cette tâche dans ce fichier. Cela est utile car les tâches cron peuvent être utilisées à mauvais escient à des fins de persistance sur un système.
+5. **/var/log/secure** : contient des informations relatives aux privilèges d'authentification et d'autorisation. Par exemple, sshd (le démon utilisé pour le service SSH) enregistre tous les messages ici, y compris les tentatives de connexion infructueuses.
+6. **/var/log/faillog** — Contient les tentatives de connexion infructueuses de l'utilisateur.
+
+**var/log/apache2/access.log** qui nous fournit des informations sur les demandes adressées au serveur Web, y compris des valeurs telles que :
+
+- Adresse IP du client à l'origine de la demande
+- La ressource à laquelle ils essaient d'accéder
+- La méthode HTTP, qui sera le plus souvent GET (pour obtenir une ressource, telle que des images dans une page Web)
+- L'agent utilisateur utilisé par l'adresse IP du client (il doit généralement s'agir d'un agent utilisateur du navigateur, tel que Chrome, Firefox, etc.)
+- et l'horodatage de la demande
+
+Regardons un exemple.
+
+`**52.50.100.106 - SBT Utilisateur [27/Jul/ 2020:15:30:00 -0600] « GET /logo.png HTTP/1.1" 200 379**`
+
+1. 52.50.100.106 - L'adresse IP du client qui fait la demande au serveur Web
+2. SBT Utilisateur : l'identifiant du compte à l'origine de la demande (s'il est connecté et si le site Web utilise des comptes)
+3. [27/Jul/ 2020:15:30:00 -0600] - L'horodatage de la demande
+4. « GET /logo.png HTTP/1.1 » - La ressource à laquelle vous accédez, dans ce cas, l'adresse IP récupère le fichier image du logo afin qu'il puisse être affiché sur une page
+5. 200 - Le code de réponse HTTP. Dans ce cas, c'est 200 OK (accès réussi). Dans d'autres cas, il peut s'agir de 404 si la ressource n'est pas trouvée.
+6. 379 - La taille du fichier envoyé au client (dans ce cas, la taille du fichier logo.png)
