@@ -11,7 +11,7 @@ L’opérateur peut définir les informations qu’il souhaite collecter en util
 
 **Forensic Tool Kit Imager – FTK Imager** est un outil gratuit qui permet de prendre des images bit à bit de disques durs, de monter des images disque en mode lecture seule (bloqueur logiciel d’écriture) et offre des fonctionnalités d’analyse pour examiner les images disque.
 
-**Browser History Capturer – BHC est** un outil gratuit qui permet à l’opérateur de collecter les fichiers principaux des navigateurs web courants, qui peuvent être examinés manuellement ou importés dans Browser History Viewer pour analyser l’historique web.
+**Browser History Capturer – BHC** est un outil gratuit qui permet à l’opérateur de collecter les fichiers principaux des navigateurs web courants, qui peuvent être examinés manuellement ou importés dans Browser History Viewer pour analyser l’historique web.
 
 **Browser History Viewer – BHV** est un outil gratuit qui permet à l’opérateur de capturer certains fichiers principaux du navigateur (il est préférable d’utiliser **BHC** pour collecter les fichiers à analyser) et fournit ensuite des fonctionnalités d’analyse, permettant d’examiner l’historique web sur le long terme, les images mises en cache et les pages web.
 
@@ -623,3 +623,11 @@ Regardons un exemple.
 4. « GET /logo.png HTTP/1.1 » - La ressource à laquelle vous accédez, dans ce cas, l'adresse IP récupère le fichier image du logo afin qu'il puisse être affiché sur une page
 5. 200 - Le code de réponse HTTP. Dans ce cas, c'est 200 OK (accès réussi). Dans d'autres cas, il peut s'agir de 404 si la ressource n'est pas trouvée.
 6. 379 - La taille du fichier envoyé au client (dans ce cas, la taille du fichier logo.png)
+
+Historique des commandes sur linux : **.bash_history**
+
+- **steghide** — invoque l'outil que nous voulons utiliser
+- **embed** — sélectionne l'opération que nous voulons utiliser, dans ce cas intégrer un fichier dans un autre
+- **-cf Dog.jpg** — le flag « fichier de couverture » est l'endroit où nous indiquons le fichier qui contiendra le fichier caché
+- **-ef secretmessage** — l'indicateur « intégrer le fichier » est l'endroit où nous indiquons le fichier que nous voulons cacher dans le fichier de couverture
+
