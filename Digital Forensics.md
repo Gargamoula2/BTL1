@@ -631,3 +631,290 @@ Historique des commandes sur linux : **.bash_history**
 - **-cf Dog.jpg** — le flag « fichier de couverture » est l'endroit où nous indiquons le fichier qui contiendra le fichier caché
 - **-ef secretmessage** — l'indicateur « intégrer le fichier » est l'endroit où nous indiquons le fichier que nous voulons cacher dans le fichier de couverture
 
+---
+
+# Volatility
+
+| Commande (exécutable)                                                | Objectif / description                                                         | Exemple (remplace `PROFILE` par le profil suggéré)                   | Remarques / sortie attendue                                                                                                  |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `volatility -f memdump.mem imageinfo`                                | Détecte et suggère le profil mémoire (OS, version, architecture)               | `volatility -f memdump.mem imageinfo`                                | Affiche plusieurs profils suggérés et métadonnées (date/heure, pointeurs, etc.). Utilisé avant d’appliquer `--profile`.      |
+| `volatility -f memdump.mem --profile=PROFILE pslist`                 | Liste les processus actifs vus via les structures internes (EPROCESS)          | `volatility -f memdump.mem --profile=PROFILE pslist`                 | Liste “linéaire” des processus ; bon point de départ pour l’analyse des processus.                                           |
+| `volatility -f memdump.mem --profile=PROFILE pstree`                 | Affiche l’arbre des processus (parent/enfant)                                  | `volatility -f memdump.mem --profile=PROFILE pstree`                 | Utile pour visualiser la hiérarchie des processus et repérer processus orphelins/suspects.                                   |
+| `volatility -f memdump.mem --profile=PROFILE psscan`                 | Recherche tous les processus en mémoire (y compris cachés ou non listés)       | `volatility -f memdump.mem --profile=PROFILE psscan`                 | Détecte processus supprimés ou masqués ; compare avec `pslist` pour anomalies.                                               |
+| `volatility -f memdump.mem --profile=PROFILE psxview`                | Agrège plusieurs vues/process plugins pour révéler processus cachés            | `volatility -f memdump.mem --profile=PROFILE psxview`                | Combine résultats (`pslist`, `psscan`, autres) et montre indicateurs d’incongruence.                                         |
+| `volatility -f memdump.mem --profile=PROFILE netscan`                | Identifie connexions réseau (sockets, connexions TCP/UDP) présentes en mémoire | `volatility -f memdump.mem --profile=PROFILE netscan`                | Affiche IP/ports, états (LISTEN, ESTABLISHED). Peut requérir profile adéquat (Windows modernes).                             |
+| `volatility -f memdump.mem --profile=PROFILE timeliner`              | Génère une chronologie d’événements extraits de la mémoire                     | `volatility -f memdump.mem --profile=PROFILE timeliner`              | Produit une timeline brute (timestamps, évènements divers) pour analyse forensique temporelle.                               |
+| `volatility -f memdump.mem --profile=PROFILE iehistory`              | Récupère l’historique de navigation Internet Explorer depuis la mémoire        | `volatility -f memdump.mem --profile=PROFILE iehistory`              | Valeur limitée aux versions/artefacts IE ; utile si l’IE a été utilisé sur la machine.                                       |
+| `volatility -f memdump.mem --profile=PROFILE filescan`               | Scanne en mémoire les objets fichiers (FILE_OBJECT, etc.)                      | `volatility -f memdump.mem --profile=PROFILE filescan`               | Liste fichiers/objets trouvés en mémoire ; utile pour repérer fichiers récemment ouverts ou fichiers malveillants résidents. |
+| `volatility -f memdump.mem --profile=PROFILE dumpfiles --dump-dir=.` | Extrait (dump) les fichiers trouvés en mémoire vers un dossier local           | `volatility -f memdump.mem --profile=PROFILE dumpfiles --dump-dir=.` | Récupère fichiers (par ID ou pattern). Vérifie l’emplacement de sortie (`--dump-dir`) et permissions.                        |
+| `volatility -f memdump.mem --profile=PROFILE dumpfiles -D .`         | Variante courante pour écrire les fichiers extraits dans le répertoire courant | `volatility -f memdump.mem --profile=PROFILE dumpfiles -D .`         | `-D` est équivalent à `--dump-dir` selon les versions/plugins ; toujours vérifier la version de Volatility.                  |
+Compter le nombre d'occurrence : **python vol.py -f Volatility memdump1.mem --profile=win7sp1x64 pslist | grep « svchost.exe » | wc -l**
+
+**Question 7 - memdump1.mem - Liste des processus 4 - L'un des processus svchost est malveillant. Quel est le PID de l'étrange processus svchost.exe ?**
+
+Pour nous fournir plus de contexte que la simple liste des processus, nous utiliserons le plugin « pstree » pour montrer les relations parent-enfant entre les processus. Nous pouvons voir que le premier processus svchost.exe crée un processus enfant cmd.exe, dans lequel la commande ping est utilisée, car nous pouvons voir que le processus ping.exe est utilisé. C'est vraiment une activité inhabituelle !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/545be0170ad5167923528d8ed5c422f7bc8c1b88b6797d262fa225b4408e55dfa392e9ce795496b8426cdef15e03.png)
+
+**Question 8 - memdump1.mem - Liste des processus 5 - Quelle est la ligne de commande du processus avec le PID 2352 ?**
+
+En utilisant le plugin « cmdlist » et en pointant vers le pid spécifique Volatility à l'aide de l'indicateur « -p », nous pouvons extraire les arguments de ligne de commande que ce processus utilisait. `**python vol.py -f /home/ubuntu/desktop/ \ Exercise/MemDump1.mem --profile=Ligne de commande Win7SP1x64 -p Volatility 2352**`
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/725a36255f0a0515bcc1d0aa7c9bcfdfb2b1d41d9d23114b3e2318aa258f630550a40c70e16717b7d1e3c9693a8e.png)
+
+
+**Question 10 - memdump2.mem - Sauvegarde du processus - Sauvegardez le processus avec le PID 2940 et calculez le hachage MD5. Soumettez les 5 premiers caractères**
+
+En utilisant le plugin « procdump » et en fournissant le PID à l'aide de -p, nous pouvons extraire le fichier. Nous utiliserons ensuite « md5sum » pour obtenir la valeur de hachage MD5. `python vol.py -f memdump2.mem --profile=Win7SP1x64 procdump -p Volatility 2940`
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/eb4e8460c4b7155959d296b2bd195f71c82a726a3dfa1121e47f745a83fa474c76d90d752394511d807393480941.png)
+
+**POUR VOLATILITY 3**
+
+|Command Purpose|**Volatility 2 Command**|**Volatility 3 Command**|
+|---|---|---|
+|Get process tree|volatility --profile=PROFILE pstree -f file.dmp|python3 vol.py -f file.dmp windows.pstree|
+|List services|volatility --profile=PROFILE svcscan -f file.dmp|python3 vol.py -f file.dmp windows.svcscan|
+|List available registry hives|volatility --profile=Win7SP1x86_23418 -f file.dmp hivelist|python3 vol.py -f file.dmp windows.registry.hivelist|
+|Print cmd commands|volatility --profile=PROFILE cmdline -f file.dmp|python3 vol.py -f file.dmp windows.cmdline|
+https://blog.onfvp.com/post/volatility-cheatsheet/
+
+**Question 1) When refreshing the process list - what plugin is volatility actually using? (Format: Command.command)**
+
+In the main window of Workbench we can see that after clicking the Refresh Process List button, Workbench is just running the windows.pslist command:
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/2448bb384aaa533963c59608781dbb00b3919a1c6a199851389be1c11f72c75eccc637eb11bf8c7193dd11cee65f.png)
+
+**Question 2) Select the windows.info.info plugin from the drop down list. What version of the Windows Operating system is being used on the system the memorydump is taken from? (Format: Windows Version)**
+
+ Selecting the command provided in the question within the output we can see the following lines of interest:
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/9cea979f55b974eb4b4688941e48b882b38dc6f0fa967494af926de3f7cd03869e0405750103bd0a5424222368e1.png)
+
+Combining the SystemRoot and MajorOperatingSystemVersion, we can identify that the machine the memory image was taken from is running Windows 10.
+
+**Question 3) Run the windows.pstree.PsTree command and use the process ID drop down menu to help filter out the noise. What is the parent process of Powershell.exe? (Format: PID, ProcessName)**
+
+We'll select the windows.pstree command and click the Process ID checkbox which gives us a dropdown to select the process we want to focus on. Based on the question, we'll find and click on PowerShell.exe that has a PID of 4708. Now we can run the command.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/c264779edeeb60a31154f54dc6774e0ba12ed28602af2fa943117c19031dd5ef60c605a16b76afa918dfa9e9d9d9.png)
+
+In the above output we can see that the parent process of PowerShell.exe is CompatTelRunne which has a process ID of 5264.
+
+**Question 4) Use the windows.privileges command. The process 2416 has the ability to 'Add Workstations to the Domain. What is the attribute associated with this privilege? (Format: AttributeName)**
+
+The question specifically mentions process 2416, so we'll click the Process ID checkbox and select this process from the dropdown menu, which is listed as HxTsr.exe (2416).
+
+Looking through the output we can find a reference to “Add workstations to the domain” which has a Privilege Attribute value of “SeMachineAccountPrivilege”.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/fa16aafc13b6dd69a402fabacb77156c9d417be9756b56c9972cd2f3c77ac37cc8b98e03f00a4023389ddc49b7c0.png)
+
+**Question 5) Pick a plugin to analyse the command-line arguments executed by process 2416. What is the server name the executable is parsing in its command? (Format: ServerName)**
+
+Looking through the command dropdown menu for a relevant plugin, we find windows.cmdline.CmdLine, which seems like it'll do what we need. We'll click the Process ID checkbox and select HxTsr.exe (2416) and run it.
+
+In the output we can see the ServerName value is HX.IPC.Server:
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/3dc04604640d8331dfadfd1b0ced1fa25e5780990753f16452e2061920c56e9ffd326092767b1adf5c9238f7337d.png)
+
+# Autopsy
+
+Nous devons d'abord ouvrir Autopsy . Lorsque l'écran ci-dessous s'affiche, cliquez sur Nouveau dossier.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/180d723ef89b9fb27432cbaae8d9c44362391ddd7f0bd0030c4c3a8f51a087f829c207b73ff928618dbb52de9d91.png)
+
+Ici, nous devons fournir un nom et un répertoire de base pour stocker tous nos fichiers. Nous avons sélectionné le nom «  BTL1   Autopsy  Procédure pas à pas » et l'avons enregistré dans un répertoire portant le même nom dans notre dossier de documents.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/1faa0dc77704213d2fdee325026ecbec06a597a770b1b97398882009ddbe685ff294827b53672541e18e35aaf574.png)
+
+L'écran suivant nous demandera de saisir certaines informations facultatives concernant l'enquête. Nous n'avons pas besoin de l'utiliser, mais c'est ainsi que les équipes de sécurité et les forces de l'ordre ajouteront des métadonnées liées aux enquêtes. Autopsy
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/3cd1fd757e33ef5fbc2c65a525bf0951895dd31e27316202eef5b6d14fc52c4bc50acbf2559aa10a1af8ade02796.png)
+
+Autopsy devrait alors nous demander d'ajouter notre source de données. Dans ce cas, il s'agit d'une image disque. Nous devons donc sélectionner « Image de disque ou fichier de machine virtuelle », puis cliquer sur Suivant.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/a063c6c89257631bf6f5825254b4630ef5e5da6420a7a669467b628d036169734192819394e056722e7a17c5af67.png)
+
+Nous cliquerons sur Parcourir et sélectionnerons le fichier image disque .E01 que nous utilisons pour cette procédure pas à pas, puis nous cliquerons sur Suivant pour l'ajouter en tant que source de données pour notre enquête. Il nous sera ensuite demandé si nous voulons exécuter des modules d'ingestion. Il s'agit d'actions automatisées qui peuvent être effectuées sur une source de données afin de récupérer des informations utiles au médecin légiste et de lui faire gagner du temps. Pour cette procédure pas à pas, nous souhaitons sélectionner « Tous les fichiers, répertoires et espace non alloué » dans le menu déroulant, car cela permet de sélectionner les cibles sur lesquelles les modules d'ingestion seront exécutés. Ensuite, vous devez sélectionner les options suivantes :
+
+- Activité récente
+- Identification du type de fichier
+- Extracteur de fichiers intégré
+- Analyseur Exif
+- Analyseur d'e-mails
+- Détection du chiffrement
+
+Notez que certains de ces modules d'ingestion peuvent changer de nom !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/acbbd2a2822ab61a22d6f9074f07b02b4b750375feae59327a9c6d6ddc7ef77fdf3b0116c28b4789918025c60910.png)
+
+Dans le coin inférieur droit, vous verrez une barre de progression qui vous indiquera quand chaque module d'ingestion est terminé. Autopsy Accordez quelques minutes pour terminer l'analyse de la source de données. Vous devez également remarquer que les valeurs affichées dans le volet de gauche augmentent lorsque les modules d'ingestion s'exécutent, car ils découvrent des informations importantes et les placent dans l'arborescence des artefacts afin de permettre à l'examinateur de les examiner plus en profondeur.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/f8cf0e75240def3a0fbe5e0db77dc82ac8a5ed4a9adcb5d3c2c7c818e004973bc85b2700ef0439186b8e275824be.png)
+
+## **Analyse des résultats du module Ingest**
+
+À présent, tous les modules d'ingestion devraient être terminés et vous ne verrez pas la barre de progression dans le coin inférieur droit de Autopsy . L'arborescence de navigation du volet de gauche doit également comporter des chiffres à côté des titres, indiquant que les informations ont été trouvées et triées en différentes catégories. Nous allons maintenant vous expliquer certaines des informations extraites de l'image du disque dur. Autopsy
+
+La première chose que nous voulons examiner concerne les volumes du disque dur afin de collecter des informations telles que l'espace alloué et non alloué, la taille de ces partitions et le ou les formats utilisés. En haut de l'arborescence de navigation, cliquez sur l'icône + à côté de Data Sources, puis sur l'icône + à côté de Craig Tucker Desktop.E01. Trois volumes s'afficheront : vol1, vol2, vol3.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/4ad70e23ef7a24d39b2b658783e3812ff21263396f3b1f673a67d2bf7bd5cad46153f7ba25e2bfe535bb93b308e0.gif)
+
+Si nous cliquons avec le bouton gauche de la souris sur Craig Tucker Desktop.E01 dans l'arborescence de navigation, le volet de droite affiche désormais des informations sur les volumes détectés. C'est ce que l'on appelle la table de partition.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/c84fff9b8d7b43b42e5b217ab7dfe8c50fd9c58fe6f884a881723aa1e952c77578922535ab9324a4fe29b1d0e27e.png)
+
+Dans la capture d'écran ci-dessus, nous pouvons voir que le volume 2 est formaté avec NTFS /exFAT, qu'il commence au secteur 2048 et que sa longueur est de 125825024. Il s'agit de la section principale du disque dur et c'est là que se trouve la structure des fichiers. Tout, des utilisateurs aux documents et aux téléchargements, se trouvera dans ce volume. Si vous double-cliquez sur vol2, une structure de fichiers en lecture seule s'affiche, ce qui nous permet de parcourir les fichiers comme si nous étions assis devant un ordinateur portable !
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/086233e0c6af9557146fd8feab71949b171b991e7b5e5abad996ff58869dbc69143038f9bc44419ea63787641d06.png)
+
+Passez une minute à parcourir les répertoires pour voir ce que vous pouvez trouver. Il est bon de se familiariser avec cette méthode de navigation dans les images médico-légales, car les personnes qui utilisent Windows au quotidien seront probablement habituées à naviguer dans la structure des fichiers.
+
+Maintenant que vous avez jeté un coup d'œil, il est temps de voir les résultats des modules d'ingestion, qui se trouvent dans l'arborescence de navigation sous l'en-tête **Résultats**, illustré ci-dessous.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/2661942374aec7bd4667f073429f5518a05df3a16542ff9f214b03f86a38795e8da97cc257e86109c79e6f20fe5f.png)
+
+Examinons quelques-uns de ces résultats. Pour commencer, cliquez sur l'historique Web en bas de la page. Cela nous montrera les sites qui ont été visités sur le système, y compris la date d'accès, le titre de la page s'il est disponible et le programme utilisé pour accéder à la ressource Web. Par exemple, la ligne surlignée indique qu'un utilisateur s'est rendu sur 4chan.org/rules via le navigateur Chrome le 18/12/2013 à 02h35 GMT.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/beba0fd2f910eff76cd59b87c658e39f9695ccaaf42bf4be363c9de0bb6f68337b8ff1e5cf8942d03c2db9e9a93b.png)
+
+C'est un excellent moyen de consulter les habitudes de navigation et les sites consultés par un suspect. Les horodatages nous aident également à créer une chronologie des événements survenus et peuvent être utilisés pour prouver qu'un utilisateur a consulté des ressources un jour donné, ce qui peut faciliter une enquête.
+
+Voyons maintenant quels fichiers l'utilisateur a supprimés en accédant à la corbeille dans l'arborescence de navigation. Dans le volet de droite, nous pouvons maintenant voir que l'utilisateur a supprimé trois fichiers et nous indiquent leurs chemins d'accès, l'utilisateur qui les a supprimés et l'heure à laquelle le fichier a été supprimé. Cela peut être une solution rapide si nous cherchons à identifier les fichiers qui ont été supprimés et à obtenir des informations à leur sujet.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/8d803dcd13a1bd0f3fff9257d39832d934d004ce2051bf4ba43fc4b5280a5dd4f8e9b18d4060031fa4cb3242c598.png)
+
+Nous pouvons en fait exporter ces fichiers pour les consulter (cela ne se limite pas aux fichiers de la corbeille, nous pouvons le faire avec tous les fichiers identifiés dans l'image du disque !). Cliquez avec le bouton droit sur le chemin de « Underage_lolita_r@ygold_001.jpg » **(ne vous inquiétez pas, cette image n'est pas explicite, c'est juste un exemple de nom pour le scénario d'enquête)**.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/ebd36cf300ebf76754a97cb1933f3836577feec31ca78e8380454dd06b3aa9c2a19ce1b801d90f945beb44e6d94c.png)
+
+Sélectionnez la destination vers laquelle vous souhaitez exporter le fichier, puis ouvrez-le. Vous trouverez ci-dessous l'image que nous venons d'extraire de l'image du disque.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/992a82be00788abe2524ea0c3a2bd2b2809db000bcb5b72eb0fadd608c94c090bcdf45e0b74037826ed9fd17df0e.png)
+
+Cette fonctionnalité peut être utile si l'enquête portait sur l'exploitation d'enfants, car elle permet aux légistes d'identifier des images potentiellement explicites, de les exporter et de confirmer si le matériel peut être utilisé comme preuve dans le cadre de poursuites judiciaires contre le suspect.
+
+Passons maintenant à la section Programmes installés pour identifier les logiciels installés sur ce système. Cliquez avec le bouton gauche sur le titre et dans le volet droit, vous pouvez maintenant voir une liste des programmes installés. À partir de là, nous pouvons déterminer quand les programmes ont été installés et leurs noms, à l'aide de certaines entrées, notamment WinRAR, GIMP, WinZip et Google Chrome.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/eaa4e728e4f657814ff349a5aa50ebcda5c5de3ea7b9fa093b45d72c3a9bd910105fc2801c75f4794434f93f8ff0.png)
+
+Passons en revue ensemble une autre section, « Comptes > E-mail » en bas de l'arborescence de navigation. Vous pouvez voir ici la liste des fichiers de courrier électronique qui ont été téléchargés sur le système, généralement via un client de messagerie.
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/05f5004f01650964dc06788fb0a73cb7ebfbf726af8999b41553cad0125dbd930a8d2e3b548f85e4e8748b0bd31d.png)
+
+Maintenant que vous savez comment exporter un fichier en cliquant avec le bouton droit de la souris, exportons le fichier e-mail sélectionné et examinons-le (vous aurez besoin d'un client de messagerie si vous souhaitez le voir tel que l'expéditeur et le destinataire le verraient, comme Mozilla Thunderbird ou Microsoft Outlook App). Vous pouvez également lire le contenu en ouvrant l'e-mail avec un éditeur de texte).
+
+  
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/d020278000d0df4dfe822feeaf8ce520915e60fed5aeff1a76e9f040aaa5669b5e37634929660915a4ff492b0453.png)
+
+La lecture des e-mails d'un suspect peut aider à recueillir des preuves concernant l'affaire dans le cadre d'une enquête judiciaire, ou à des fins de réponse à un incident, nous pouvons chercher à identifier les e-mails malveillants présents sur le système au moment de la compromission. Nous pourrions ensuite les analyser pour collecter des indicateurs tels que :
+
+- Expéditeur du message
+- Destinataire de l'e-mail
+- Date et heure
+- Ligne d'objet
+- IP du serveur d'envoi
+- et bien plus encore !
+---
+# Autopsy Lab
+
+Après l'ouverture Autopsy , dans le dossier «  Autopsy  Pour l'analyse des disques » sur le bureau, on nous demandera si nous voulons ouvrir un dossier ou en créer un nouveau. Cliquez sur Créer un nouveau dossier. Il vous sera demandé de fournir certaines informations, vous pouvez nommer le dossier comme vous le souhaitez.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/13f9edd4c729e15c595cd2199e6b0703a01ea836299bca63ea0a331650403e02f938a0fa6a2451565acf51858b21.PNG)
+
+Nous devons sélectionner un répertoire de base pour notre enquête, qui doit être un dossier vide. Cliquez sur Parcourir, accédez au bureau, puis cliquez sur l'icône en haut à droite pour créer un nouveau dossier.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/5d34bf297cfe83965d5c7a803acd1395d0646ab8227c9d40ee611cc9760be7c11302f9d2c54a4e8f82df4c7416c1.PNG)
+
+Après avoir cliqué sur Suivant, notre dossier sera créé dans Autopsy . Nous devons cliquer sur « Ajouter une source de données » dans le coin supérieur gauche. Lorsque vous êtes invité à sélectionner un hôte, laissez-le comme option par défaut (première option) et cliquez sur Suivant. Nous sommes maintenant invités à importer une image, à la laisser comme première option et à accéder au dossier Autopsy For Disk Analysis, puis à Laptop Image, puis à sélectionner le fichier ci-dessous.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/39492c9e84c80f0c0fe6176f75eb3e7d357244565e64db93668175ff7206677fb2027603b2b9b3d097236523e788.PNG)
+
+À l'étape 4, on nous demande quels modules d'ingestion nous voulons exécuter sur l'image disque, afin de nous aider à récupérer rapidement des informations intéressantes. Cliquez sur Tout désélectionner, puis cochez les deux modules ci-dessous.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/fb2583fa8fe48aa217531565c9dae4f3ef077d811e0a8e573f5f72ea0a1b96387e1cd24152b913c9f6da00a6d9f6.PNG)
+
+Autopsy va maintenant commencer à importer et à traiter l'image du disque et les modules d'ingestion. Laissez cela fonctionner pendant environ 10 minutes, puis vous serez prêt à commencer à répondre aux questions !
+
+---
+
+**Question 1 - Quel est le système d'exploitation (et la version du système d'exploitation) utilisé par l'ordinateur portable suspect ?**
+
+Pour trouver le système d'exploitation de l'appareil, vous pouvez consulter la section « Artefacts de données > Informations sur le système d'exploitation ». En faisant défiler le tableau vers la droite dans le panneau de gauche, nous pouvons voir le système d'exploitation répertorié sous la forme « Nom du programme ».
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/1be2a1be291a99f3c17fcd219bb8ea939f28492bfa453aae6dbcdb9ff706c20aded629a6fe86f2e3d2f364d3133b.PNG)
+
+---
+
+**Question 2 - Quel est le nom d'hôte du système ?**
+
+Dans la même section que ci-dessus, vers la gauche du tableau, nous pouvons voir le nom d'hôte répertorié sous la forme « Nom ».
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/86b49231cdca4045fb384a813423cfd8824b554d1a13992ec9ef4a292b44ac387bffafd8db54fe04a85f89e3f8ef.PNG)
+
+---
+
+**Question 3 - Examinez les téléchargements Web qui ont été extraits de l'image disque. Quel fichier a été téléchargé le 18/12/2013 20:05:57 GMT ?**
+
+Toujours en regardant la rubrique « Artefacts de données » dans le panneau de gauche, on nous a demandé d'étudier les téléchargements Web. Dans le tableau de droite, nous pouvons voir « Date d'accès ». Nous devons donc trouver la ligne dont la date figure dans l'horodatage de la question !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/98e263d93f3005b866b084c2d0ad0188c13ddb9bc854fdea5a3d6a321720039930ac5f82eb4a8489e13524c2b40f.PNG)
+
+---
+
+**Question 4 - Quelle est l'URL complète du fichier téléchargé le 18/12/2013 03:02:50 GMT ?**
+
+En regardant au même endroit, nous devons trouver la ligne du tableau qui correspond à l'horodatage de la question. Après l'avoir trouvée, nous pouvons voir l'URL complète dans la colonne intitulée « URL ».
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/fbed000932dc3e33e95733c1e60cad9bfa0c81a1e299283bc0cbadbd3f45ce6cd6b3d28003751ee56e47746e5257.PNG)
+
+---
+
+**Question 5 - En consultant les documents récents, quel est le chemin complet du fichier Pier.jpg ?**
+
+Vous vous souvenez des fichiers LNK, que nous avons abordés plus tôt dans ce domaine ? Fichiers utilisés comme raccourcis vers le fichier réel situé sur le disque. Nous pouvons utiliser LNK pour identifier quand les fichiers ont été consultés et où ils sont stockés. L'exemple s'applique ici ! En regardant l'élément de menu « Documents récents », nous pouvons trouver le fichier Pier.lnk, qui est utilisé pour représenter Pier.jpg. Nous pouvons obtenir le chemin du fichier dans la colonne « Chemin ».
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/cf87f0f201455b719ab993a4ce4e35372f076228bd4e338591ef614607688e65ca8902f24608bcd1f26ce575def7.PNG)
+
+---
+
+**Question 6 - Double-cliquez sur vol2 pour accéder au système de fichiers virtuel. Accédez à Program Files > GIMP 2. Quelle est la taille du fichier du répertoire nommé « lib » ?**
+
+Regardons le système de fichiers virtuel, comme si nous étions sur l'ordinateur lui-même ! Double-cliquez sur vol2, la plus grande partition du système de fichiers.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/e35f317e223a0c36ca9a7dc152987cf8843c0724b58442b5ccf542f0dac10faeba99d2625e349cc671ff9bd86e5b.PNG)
+
+En passant à Program Files, GIMP 2, nous pouvons voir le dossier qui nous intéresse. La taille du fichier est indiquée sous forme de colonne à la fin de la section surlignée !
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/83c0a4401f11a2cd594e7ec40d723250bbf3a598cccc90449430ce33d655fb78a99605e57df29b18c2f8a380aa74.PNG)
+
+---
+
+**Question 7 - Accédez à l'onglet Comptes du système d'exploitation. Quand le compte d'administrateur local a-t-il été consulté pour la dernière fois ? (Format : AAAA-MM-DD HH:MM:SS**)
+
+Dans la section « Comptes du système d'exploitation », nous pouvons voir tous les utilisateurs locaux qui se trouvent sur cet ordinateur. En bas, nous pouvons voir le compte administrateur, nous indiquant l'heure à laquelle il a été consulté pour la dernière fois.
+
+![](https://d2y9h8w1ydnujs.cloudfront.net/uploads/content/images/7c416bfdae41f2a64e72ec29580c5c90997afc79988bc143825a91e0556d2e30a0c9a85c5ebbd5187af93dd7d628.PNG)

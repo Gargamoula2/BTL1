@@ -1,6 +1,8 @@
 [[Phishing]]
 [[Threat Intelligence]]
 [[Digital Forensics]]
+[[Incident Response]]
+[[SIEM]]
 
 ### 🔍 **Digital Forensics**
 
