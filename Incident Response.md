@@ -83,7 +83,7 @@ Il existe plusieurs façons d'obtenir cette réponse. L'une d'elles consiste à 
 
 **Question 3) Enquêtez sur le cas #5. Quels tags ont été attribués à ce dossier ?**
 
-Dans la liste de tous les cas, nous pouvons voir que la deuxième colonne a pour titre « #NUMBER ». Nous allons donc cliquer sur le titre du cas #5.
+Dans la liste de tous les cas, nous pouvons voir que la deuxième colonne a pour titre « NUMBER ». Nous allons donc cliquer sur le titre du cas #5.
 
 Dans l'onglet Général, nous pouvons voir que deux balises sont appliquées, « hameçonnage » et « e-mail ».
 
